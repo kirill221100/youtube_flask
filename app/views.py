@@ -216,6 +216,10 @@ def logout():
     session.pop('nick')
     return redirect(url_for('login'))
 
+@app.route('/ip')
+def chk_ip():
+    return request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+
 # @app.route('/ban/<nick>')
 # def ban(nick):
 #     user = db.session.query(User).filter(User.nick == nick).first()
