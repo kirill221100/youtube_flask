@@ -26,7 +26,8 @@ def create_tables():
 def log_ip():
     if session.get('nick'):
         user = db.session.query(User).filter(User.nick == session['nick']).first()
-        ip = request.remote_addr
+        ip = request.headers['X-Forwarded-For']
+
         if not user.ip:
             user.ip = {'ip': []}
         if ip not in user.ip['ip']:
