@@ -102,7 +102,7 @@ def upload():
     bans = Banned_ips.query.get(1)
     user = db.session.query(User).filter(User.nick == session['nick']).first()
     if bans:
-        if request.headers['X-Forwarded-For'] in bans.ips['ips'] or user.is_banned:
+        if request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr) in bans.ips['ips'] or user.is_banned:
             return "Your ip is banned and you can't upload videos"
     if request.method == 'POST':
         if request.files['file'].content_type != 'video/mp4':
