@@ -22,19 +22,7 @@ admin.add_view(ModelView(Banned_ips, db.session))
 def create_tables():
     db.create_all()
 
-@app.before_request
-def log_ip():
-    if session.get('nick'):
-        user = db.session.query(User).filter(User.nick == session['nick']).first()
-        ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
 
-        if not user.ip:
-            user.ip = {'ip': []}
-        if ip not in user.ip['ip']:
-            user.ip['ip'].append(ip)
-        else:
-            return
-        db.session.commit()
 
 
 from app.views import *

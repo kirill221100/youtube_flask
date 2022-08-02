@@ -3,6 +3,20 @@ from app import app, service
 from app.models import db, User, Video, Comment, Banned_ips
 from upload import upload_video, pictures
 
+@app.before_request
+def log_ip():
+    if session.get('nick'):
+        user = db.session.query(User).filter(User.nick == session['nick']).first()
+        ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+
+        if not user.ip:
+            user.ip = {'ip': []}
+        if ip not in user.ip['ip']:
+            user.ip['ip'].append(ip)
+        else:
+            return
+        db.session.commit()
+
 @app.route('/', methods=['POST', 'GET'])
 def index():
     videos = db.session.query(Video).order_by(Video.id.desc()).all()
