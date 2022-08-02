@@ -43,7 +43,9 @@
                 <div class="tags">
                     <!-- <a href="">#Coading </a><a href="">#html </a><a href="">#css  </a> <a href="">#durgesh </a>  -->
                 </div>
-                <iframe src={{video.link}} class="iframeVideo" style="width: 100%; height: 450px;"></iframe>
+                <!--<iframe src={{video.link}} class="iframeVideo" style="width: 100%; height: 450px; margin:0;" frameborder="0" allowfullscreen></iframe> -->
+                <video style="width: 100%; height: 450px;" class="iframeVideo" controls><source src={{'https://drive.google.com/uc?id='+video.link[32:-8]+'&authuser=0'}} type="video/mp4"></video>
+
                 <h3>{{video.title}}</h3> {{video.views}} Views
                 {% if video.user.avatar %}
                     <p><img src="data:image/jpeg;base64,{{ video.user.avatar }}" alt="img_data"  id="imgslot" height="64px" width="64px"/> <a href="{{url_for('channel', nick=video.user.nick)}}">{{video.user.nick}}</a> {{video.user.followed_by|count}} subs</p>
