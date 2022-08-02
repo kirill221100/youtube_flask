@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% extends 'admin/master.html' %}
+
+    {% block body %}
+    {% with messages = get_flashed_messages() %}
+	  {% if messages %}
+		<ul>
+		{% for message in messages %}
+		  <li>{{ message }}</li>
+		{% endfor %}
+		</ul>
+	  {% endif %}
+	{% endwith %}
+    <form method="post" action="">
+        <div class="form-group">
+            Ban user: <input type="text" name="ban" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Ban</button>
+    </form>
+
+    <form method="post" action="">
+        <div class="form-group">
+            Unban user: <input type="text" name="unban" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Unban</button>
+    </form>
+    {% endblock %}
+
+</body>
+</html>

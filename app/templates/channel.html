@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{channel.nick}}</title>
+</head>
+<body>
+    {% if channel.avatar %}
+        <img src="data:image/jpeg;base64,{{ channel.avatar }}" alt="img_data"  id="imgslot" height="128px" width="128px"/> {{channel.nick}}
+    {% else%}
+        <img src="{{url_for('static', filename='profile.jpg')}}" height="128px" width="128px"/> {{channel.nick}}
+    {% endif%}
+    <p>{{channel.followed_by|count}} subs</p>
+    {% if channel.desc %}
+        <p>{{channel.desc}}</p>
+    {%endif%}
+    {% if session.get('nick') and user.nick == channel.nick %}
+        <p>It's your channel</p>
+    {% elif not session.get('nick') or channel not in user.following%}
+        <a href="{{ url_for('sub', nick=channel.nick)}}">Subscribe</a>
+    {% else %}
+        <a href="{{ url_for('unsub', nick=channel.nick)}}">Unsubscribe</a>
+    {% endif%}
+    {% for i in channel.videos%}
+        {% if i.preview%}
+            <p><a href="{{url_for('video', id=i.id)}}"><img src="data:image/jpeg;base64,{{ i.preview }}" alt="img_data"  id="imgslot" height="250px" loading="lazy"/></a></p>
+        {% else%}
+            <p><a href="{{url_for('video', id=i.id)}}"><img src="{{url_for('static', filename='prw.png')}}" alt="img_data"  id="imgslot" height="250px" loading="lazy"/></a></p>
+        {%endif%}
+        <p>{{i.title}} {{i.views}} views</p>
+        <p>Uploaded: {{i.date}}</p>
+        <hr>
+    {% endfor%}
+</body>
+</html>

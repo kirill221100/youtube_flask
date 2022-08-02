@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications</title>
+</head>
+<body>
+    {% for i in notifics_v %}
+        <a href="{{url_for('video', id=i.id)}}">
+            <p>{{i.user.nick}} uploaded: {{i.title}}
+            {% if i.preview%}
+                <img src="data:image/jpeg;base64,{{ i.preview }}"  height="150px" width="250" loading="lazy" class="thumbnail"/>
+            {% else%}
+                <img src="{{url_for('static', filename='prw.png')}}" height="150px" width="250" loading="lazy" class="thumbnail"/>
+            {%endif%}</p>
+        </a>
+    {% endfor %}
+    <hr>
+    {% for i in notifics_c %}
+        <a href="{{url_for('video', id=i.video.id)}}">
+            <p>{{i.user.nick}} commented: {{i.text}}</p>
+        </a>
+    {% endfor %}
+</body>
+</html>

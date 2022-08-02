@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{video.title}}</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+
+</head>
+<body>
+    <nav class="flex-div">
+        <div class="nav-left flex-div">
+            <img src="{{url_for('static', filename='images/youtube.png')}}" alt="" class="logo">
+
+        </div>
+
+        <div class="nav-right flex-div">
+            <a href="{{url_for('upload')}}"><img src="{{url_for('static', filename='images/upload.png')}}" alt=""></a>
+            <a href="{{url_for('account')}}"><img src="{{url_for('static', filename='images/more.png')}}" alt=""></a>
+            {% if session.get('nick')%}
+                {% if user.notific %}
+                    <a href="{{url_for('notific')}}"><img src="{{url_for('static', filename='images/notification1.png')}}" alt=""></a>
+                {%else%}
+                    <a href="{{url_for('notific')}}"><img src="{{url_for('static', filename='images/notification.png')}}" alt=""></a>
+                {%endif%}
+                {% if user.avatar %}
+                    <a href="{{url_for('channel', nick=user.nick)}}"><img src="data:image/jpeg;base64,{{ user.avatar }}" class="user-icon" height="32px" width="64px"/></a>
+                {% else%}
+                    <a href="{{url_for('channel', nick=user.nick)}}"><img src="{{url_for('static', filename='profile.jpg')}}" class="user-icon" height="32px" width="64px"/></a>
+                {% endif%}
+            {% else %}
+                <a href="{{url_for('login')}}">Login</a>
+            {% endif%}
+        </div>
+    </nav>
+
+
+    <div class="content play-content">
+        <div class="row">
+            <div class="play-video">
+
+                <div class="tags">
+                    <!-- <a href="">#Coading </a><a href="">#html </a><a href="">#css  </a> <a href="">#durgesh </a>  -->
+                </div>
+                <iframe src={{video.link}} class="iframeVideo" style="width: 100%; height: 450px;"></iframe>
+                <h3>{{video.title}}</h3> {{video.views}} Views
+                {% if video.user.avatar %}
+                    <p><img src="data:image/jpeg;base64,{{ video.user.avatar }}" alt="img_data"  id="imgslot" height="64px" width="64px"/> <a href="{{url_for('channel', nick=video.user.nick)}}">{{video.user.nick}}</a> {{video.user.followed_by|count}} subs</p>
+                {% else%}
+                    <p><img src="{{url_for('static', filename='profile.jpg')}}" height="64px" width="64px"/> <a href="{{url_for('channel', nick=video.user.nick)}}">{{video.user.nick}}</a> {{video.user.followed_by|count}} subs</p>
+                {% endif%}
+                {% if session.get('nick') and user.nick == video.user.nick %}
+                    <p></p>
+                {% elif not session.get('nick') or video.user not in user.following%}
+                    <a href="{{ url_for('sub', nick=video.user.nick)}}">Subscribe</a>
+                {% else %}
+                    <a href="{{ url_for('unsub', nick=video.user.nick)}}">Unsubscribe</a>
+                {% endif%}
+                <p>
+                    {% if not session.get('nick') or user not in video.likes%}
+                        <a href="{{url_for('like', id=video.id, action='create')}}"><img src="{{url_for('static', filename='like.png')}}" width="10%" style="filter: invert(50%);"></a>
+                    {% elif session.get('nick') and user in video.likes%}
+                        <a href="{{url_for('like', id=video.id, action='remove')}}"><img src="{{url_for('static', filename='like.png')}}" width="10%"></a>
+                    {%endif%}
+                    {{video.likes|count}}
+                    {% if not session.get('nick') or user not in video.dislikes%}
+                        <a href="{{url_for('dislike', id=video.id, action='create')}}"><img src="{{url_for('static', filename='dislike.png')}}" width="10%" style="filter: invert(50%);"></a>
+                    {% elif session.get('nick') and user in video.dislikes%}
+                        <a href="{{url_for('dislike', id=video.id, action='remove')}}"><img src="{{url_for('static', filename='dislike.png')}}" width="10%"></a>
+                    {%endif%}
+                    {{video.dislikes|count}}
+                </p>
+                <hr>
+                {% if video.desc %}
+                    <p><pre>{{video.desc}}</pre></p>
+                {% endif%}
+                <p>Uploaded: {{video.date}}</p>
+                <hr>
+                {% if session.get('nick')%}
+                    <form method="post" action="" autocomplete="off">
+                        <div class="form-group">
+                              Write comment: <input type="text" id="text" name="text" class="form-control" required="required" >
+                            </div>
+                            <button type="submit" class="btn btn-primary">Send comment</button>
+                    </form>
+                {% else%}
+                    <p>You have to login in your account to write comments</p>
+                {%endif%}
+                <div>
+                {% for i in video.comments[::-1]%}
+                    {% if i.user.avatar %}
+                        <img src="data:image/jpeg;base64,{{ i.user.avatar }}" alt="img_data"  id="imgslot" height="64px" width="64px"/> <a href="{{url_for('channel', nick=video.user.nick)}}">{{video.user.nick}}</a> Posted: {{i.date}}
+                    {% else%}
+                        <img src="{{url_for('static', filename='profile.jpg')}}" height="64px" width="64px"/> <a href="{{url_for('channel', nick=i.user.nick)}}">{{i.user.nick}}</a> Posted: {{i.date}}
+                    {% endif%}
+                    <p>{{i.text}}</p>
+                    <hr>
+                {%endfor%}
+                </div>
+                <!-- <h3>Lorem ipsum dolor, sit amet consectetur adipisicing elit. </h3> -->
+            </div>
+
+            <div class="right-sidebar">
+                {%for i in videos%}
+                    <div class="side_video_list">
+                        {% if i.preview%}
+                            <a href="{{url_for('video', id=i.id)}}" class="small-thumbnail"><img src="data:image/jpeg;base64,{{ i.preview }}"  height="125px" width="250" loading="lazy"/></a>
+                        {% else%}
+                            <a href="{{url_for('video', id=i.id)}}" class="small-thumbnail"><img src="{{url_for('static', filename='prw.png')}}" height="125px" width="250" loading="lazy"/></a>
+                        {%endif%}
+                        <div class="vid-info">
+                            <a href="{{url_for('video', id=i.id)}}">{{i.title}}</a>
+                                <p>{{i.user.nick}}</p>
+                                <p>{{i.views}} Views</p>
+                        </div>
+                    </div>
+                {%endfor%}
+
+            </div>
+
+<!-- ----------comment section -------------------- -->
+
+        </div>
+    </div>
+</body>
+</html>
+
+<script src="playvideo.js"></script>

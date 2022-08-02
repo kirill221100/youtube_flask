@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search</title>
+</head>
+<body>
+    <form method="post" action="">
+            <div class="form-group">
+                <input type="text" id="text" name="text" class="form-control" required="required">
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    {% for i in res%}
+        <p>
+          <a href="{{url_for('video', id=i.id)}}">{{i.title}}</a> by <a href="{{url_for('channel', nick=i.user.nick)}}">{{i.user.nick}}</a>
+        </p>
+
+
+        <hr>
+      {% endfor%}
+</body>
+</html>

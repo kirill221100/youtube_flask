@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Account</title>
+</head>
+<body>
+    <form method="post" action="" enctype="multipart/form-data">
+        <dl>
+            {% if user.avatar %}
+                <img src="data:image/jpeg;base64,{{ user.avatar }}" alt="img_data"  id="imgslot" height="128px" width="128px"/>
+            {% else%}
+                <p>You don't have an avatar yet</p>
+            {% endif%}
+
+            {% with messages = get_flashed_messages() %}
+                 {% if messages %}
+                       {% for message in messages %}
+                            <p>{{ message }}</p>
+                       {% endfor %}
+                 {% endif %}
+              {% endwith %}
+
+            <p>Load avatar: <input type="file" name="img" autocomplete="off"></p>
+
+        </dl>
+        <p>
+            <input type="submit" value="Upload">
+        </p>
+    </form>
+    <form method="post" action="">
+        <dl>
+
+
+            <p>New nick ({{user.nick}}): <input type="text" name="nick" autocomplete="off"></p>
+            <p>New description: <textarea rows="2" class="form-control" name="desc" id="inputBio">{% if user.bio%}{{user.bio}}{%endif%}</textarea></p>
+            <p>New password: <input type="text" name="password" autocomplete="off"></p>
+
+        </dl>
+        <p>
+            <input type="submit" value="Submit">
+        </p>
+    </form>
+</body>
+</html>
