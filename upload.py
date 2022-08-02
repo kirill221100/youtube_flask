@@ -29,6 +29,7 @@ def upload_video(service, file):
     file_metadata = {'name': 'name'}
     media = MediaIoBaseUpload(io.BytesIO(file.read()), mimetype='video/mp4', resumable=True)
     file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+    service.permissions().create(fileId=file.get('id'), body={'type': 'anyone', 'role': 'reader'}).execute()
     return file.get('id')
 
 def pictures(file):
