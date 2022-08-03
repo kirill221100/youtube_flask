@@ -33,7 +33,7 @@ def video(id):
     videos = db.session.query(Video).order_by(Video.id.desc()).all()
     video = db.session.query(Video).filter(Video.id == id).first()
     if not session.get('nick'):
-        return render_template('video.html', video=video)
+        return render_template('play-video.html', video=video)
     if video.user.nick != session.get('nick'):
         video.views += 1
         db.session.commit()
@@ -122,8 +122,8 @@ def upload():
         if request.files['file'].content_type != 'video/mp4':
             flash('Choose mp4 video')
             return redirect(url_for('upload'))
-        if request.files['file'].content_length > 50:
-            flash('Choose video which is not more than 50 megabytes')
+        if request.files['file'].content_length > 25:
+            flash('Choose video which is not more than 25 megabytes')
             return redirect(url_for('upload'))
         desc, preview, key_words = None, None, None
         file_id = upload_video(service=service, file=request.files['file'])
@@ -139,7 +139,7 @@ def upload():
         video = Video(link=f"https://drive.google.com/file/d/{file_id}/preview", user=user, title=request.form['title'], preview=preview, desc=desc, key_words=key_words)
         db.session.add(video)
         db.session.commit()
-        return redirect(url_for('index'))
+        return redirect(url_for('video', id=video.id))
     return render_template('upload.html')
 
 @app.route('/sub/<string:nick>')
