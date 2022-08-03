@@ -6,7 +6,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly',
-          'https://www.googleapis.com/auth/drive.file']
+          'https://www.googleapis.com/auth/drive.file',
+          'https://www.googleapis.com/auth/drive']
 
 def get_gdrive_service():
     creds = None
@@ -31,6 +32,10 @@ def upload_video(service, file):
     file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
     service.permissions().create(fileId=file.get('id'), body={'type': 'anyone', 'role': 'reader'}).execute()
     return file.get('id')
+
+def delete_video(service, id):
+    service.files().delete(fileId=id).execute()
+    service.files().emptyTrash().execute()
 
 def pictures(file):
     pic = base64.b64encode(file.read()).decode("utf-8")

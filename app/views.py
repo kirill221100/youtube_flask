@@ -1,7 +1,8 @@
 from flask import render_template, flash, request, session, redirect, url_for
 from app import app, service
 from app.models import db, User, Video, Comment, Banned_ips
-from upload import upload_video, pictures
+from upload import upload_video, delete_video, pictures
+from sqlalchemy import func
 
 @app.before_request
 def log_ip():
@@ -21,7 +22,9 @@ def log_ip():
 def index():
     videos = db.session.query(Video).order_by(Video.id.desc()).all()
     if request.method == 'POST':
-        videos = db.session.query(Video).filter((Video.title.contains(request.form['search_input'])) | (Video.key_words.contains(request.form['search_input']))).order_by(Video.views).all()
+        videos = db.session.query(Video).filter((func.lower(Video.title).contains(func.lower(request.form['search_input'])))
+                                                | (func.lower(Video.key_words).contains(func.lower(request.form['search_input'])))
+                                                | (func.lower(Video.desc).contains(func.lower(request.form['search_input'])))).order_by(Video.views).all()
     if session.get('nick'):
         user = db.session.query(User).filter(User.nick == session['nick']).first()
         return render_template('index.html', videos=videos, user=user)
@@ -30,10 +33,10 @@ def index():
 @app.route('/video/<int:id>', methods=['POST', 'GET'])
 def video(id):
     session['url'] = url_for('video', id=id)
-    videos = db.session.query(Video).order_by(Video.id.desc()).all()
+    videos = db.session.query(Video).order_by(Video.id.desc()).limit(10).all()
     video = db.session.query(Video).filter(Video.id == id).first()
     if not session.get('nick'):
-        return render_template('play-video.html', video=video)
+        return render_template('play-video.html', video=video, videos=videos)
     if video.user.nick != session.get('nick'):
         video.views += 1
         db.session.commit()
@@ -92,13 +95,6 @@ def channel(nick):
         return render_template('channel.html', channel=channel)
     user = db.session.query(User).filter(User.nick == session['nick']).first()
     return render_template('channel.html', channel=channel, user=user)
-
-# @app.route('/search', methods=['POST', 'GET'])
-# def search():
-#     if request.method == 'POST':
-#         res = db.session.query(Video).filter((Video.title.contains(request.form['text'])) | (Video.key_words.contains(request.form['text']))).order_by(Video.views).all()
-#         return render_template('search.html', res=res)
-#     return render_template('search.html')
 
 @app.route('/subs')
 def subs():
@@ -234,32 +230,14 @@ def logout():
 def chk_ip():
     return request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
 
-# @app.route('/ban/<nick>')
-# def ban(nick):
-#     user = db.session.query(User).filter(User.nick == nick).first()
-#     user.is_banned = True
-#     ban = Banned_ips.query.get(1)
-#     l = ban.ips
-#     l['ips'].extend(user.ip['ip'])
-#     ban.ips = {'ips': list(set(l['ips']))}
-#     flag_modified(ban, 'ips')
-#     db.session.commit()
-#     return redirect(url_for('index'))
-#
-# @app.route('/unban/<nick>')
-# def unban(nick):
-#     user = db.session.query(User).filter(User.nick == nick).first()
-#     user.is_banned = False
-#     ban = Banned_ips.query.get(1)
-#     for i in user.ip['ip']:
-#         ban.ips['ips'].remove(i)
-#     flag_modified(ban, 'ips')
-#     db.session.commit()
-#     return redirect(url_for('index'))
-#
-# @app.route('/bban')
-# def bban():
-#     ban = Banned_ips.query.get(1)
-#     ban.ips = {'ips': []}
-#     db.session.commit()
-#     return redirect(url_for('index'))
+@app.route('/delete/<int:id>')
+def delete(id):
+    if not session.get('nick'):
+        return redirect(url_for('index'))
+    video = Video.query.get(id)
+    nick = video.user.nick
+    if session['nick'] == nick:
+        delete_video(service, video.link[32:-8])
+        db.session.delete(video)
+        db.session.commit()
+    return redirect(url_for('channel', nick=nick))

@@ -29,6 +29,9 @@
         {%endif%}
         <p>{{i.title}} {{i.views}} views</p>
         <p>Uploaded: {{i.date}}</p>
+        {% if user.nick == channel.nick %}
+            <a href="{{url_for('delete', id=i.id)}}">Delete</a>
+        {%endif%}
         <hr>
     {% endfor%}
 </body>
